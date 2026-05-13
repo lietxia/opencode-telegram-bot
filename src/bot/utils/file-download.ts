@@ -2,16 +2,10 @@
 import nodeFetch from "node-fetch";
 import type { Api } from "grammy";
 import { Agent as HttpsAgent } from "https";
-import { config } from "../../config.js";
 import { logger } from "../../utils/logger.js";
+import { config } from "../../config.js";
+import { buildTelegramFileUrl } from "./telegram-file-url.js";
 
-const DEFAULT_TELEGRAM_FILE_URL_BASE = "https://api.telegram.org/file/bot";
-
-function fileUrlBase(): string {
-  return config.telegram.apiRoot
-    ? `${config.telegram.apiRoot.replace(/\/$/, "")}/file/bot`
-    : DEFAULT_TELEGRAM_FILE_URL_BASE;
-}
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024; // 20MB Telegram limit
 
 export interface DownloadedFile {
@@ -40,7 +34,7 @@ export async function downloadTelegramFile(api: Api, fileId: string): Promise<Do
     throw new Error(`File too large: ${sizeMb}MB (max 20MB)`);
   }
 
-  const fileUrl = `${fileUrlBase()}${config.telegram.token}/${file.file_path}`;
+  const fileUrl = buildTelegramFileUrl(file.file_path);
   logger.debug(`[FileDownload] Downloading from ${fileUrl.replace(config.telegram.token, "***")}`);
 
   const fetchOptions: RequestInit & { agent?: unknown } = {};

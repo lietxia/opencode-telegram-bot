@@ -10,6 +10,7 @@ import { isSttConfigured, transcribeAudio, type SttResult } from "../../stt/clie
 import { processUserPrompt, type ProcessPromptDeps } from "./prompt.js";
 import { logger } from "../../utils/logger.js";
 import { t } from "../../i18n/index.js";
+import { buildTelegramFileUrl } from "../utils/telegram-file-url.js";
 
 const TELEGRAM_DOWNLOAD_TIMEOUT_MS = 30_000;
 const TELEGRAM_DOWNLOAD_MAX_REDIRECTS = 3;
@@ -127,8 +128,7 @@ async function downloadTelegramFile(
       return null;
     }
 
-    const apiRoot = (config.telegram.apiRoot ?? "https://api.telegram.org").replace(/\/$/, "");
-    const fileUrl = `${apiRoot}/file/bot${ctx.api.token}/${file.file_path}`;
+    const fileUrl = buildTelegramFileUrl(file.file_path);
 
     logger.debug(`[Voice] Downloading file: ${file.file_path} (${file.file_size ?? "?"} bytes)`);
 
